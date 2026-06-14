@@ -1,76 +1,80 @@
 [中文](./README.md)
 
-# resume-tuning
+![resume-tuning](./assets/banner.svg)
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Language](https://img.shields.io/badge/language-Markdown-lightgrey.svg)
 ![Skill](https://img.shields.io/badge/type-Skill-orange.svg)
 
-A skill for technical people to diagnose and optimize their resumes.
+Two things always annoyed me about resumes. One: fighting a template to fit one page, then exporting and still getting two. Two: turning X, GitHub and project links into things you can actually click, by hand, missing one every time.
 
-## What it solves
+resume-tuning takes care of both. Hand it an old resume, or just talk through a few experiences. It asks you some questions, generates a few layouts to choose from, and gives you a typeset, one-page **PDF** with working links.
 
-A recruiter spends about 10 seconds on a resume. A resume is not a personal-information form — it is a piece of sales copy with a 10-second lifespan. This skill turns "what makes a good resume" into actionable standards, scans your resume against them, and gives feedback.
+It's a Claude Code skill, and it works for anyone — engineering, product, design, marketing, students.
 
-It targets technical roles (engineers, AI / cloud-native / backend / full-stack) and assumes those preferences: GitHub / open-source work is close to mandatory, skills are proven through projects, technical terms must be cased correctly, and results are quantified with technical metrics.
+## How it works
 
-## What it does
+It doesn't generate in one shot. It goes a few rounds with you:
 
-- **Typo & consistency check**: term capitalization, separators, missing/extra characters, two spellings of the same word in one document, number formatting.
-- **Structure & content diagnosis**: one page or not, strongest point up front, timeline current, every entry quantified (STAR), self-summary backed by evidence, skills proven by projects, hooks planted, no overstatement.
-- **Tiered feedback**: must-fix / strongly-recommended / optional, each with a reason. Text feedback by default — it does not edit your files unprompted.
+1. Figure out what you have. If there's an old resume, it reads it — including the hyperlinks already embedded inside. If you only have scattered notes, it asks for them.
+2. Ask a few personalization questions: target role, what to lead with, Chinese or English, whether to include a portfolio or open-source section.
+3. Run the content against the good-resume standards: quantify what should be quantified, cut the fluff, fix typos and term casing (`DevOps`, `Kubernetes`).
+4. Fill the same content into three layouts — classic, minimal, modern — as drafts for you to pick from.
+5. Polish the chosen one to exactly one page, make X / GitHub / site / projects / blog clickable, and export the PDF.
 
-## Workflow
+It won't invent missing data; it flags gaps for you to fill.
 
-```
-Resume ──► Step 0 Read the standards (references/resume-standards.md)
-        │
-        ▼
-        Step 1 Get the actual resume
-        │
-        ▼
-        Step 2 Break into sections + confirm the top strength to highlight
-        │
-        ▼
-        Step 3 Typo / consistency check
-        │
-        ▼
-        Step 4 Optimize against the good-resume standards
-        │
-        ▼
-        Step 5 Tiered text feedback (must-fix / recommended / optional)
-```
+## Three layouts
+
+| Layout | Look | Who it fits |
+|---|---|---|
+| **classic** | Blue section tags, steady and general | Most people, technical roles |
+| **minimal** | Serif, thin rules, lots of whitespace | Senior, management, academic |
+| **modern** | Colored header card, eye-catching | Product, design, marketing |
+
+Same content, different CSS. Switch freely without losing anything.
 
 ## Install
 
-Drop the whole directory into your AI agent's skills folder (e.g. `~/.claude/skills/`):
+Drop the folder into your agent's skills directory, e.g. `~/.claude/skills/`:
 
 ```bash
 git clone https://github.com/anneheartrecord/resume-tuning.git resume-tuning
 ```
 
+Rendering uses WeasyPrint. Install the dependencies once:
+
+```bash
+brew install pango gdk-pixbuf libffi
+python3 -m venv ~/.venv && ~/.venv/bin/pip install weasyprint pypdf
+```
+
 ## Usage
 
-Tell your AI assistant:
+Just tell your AI assistant:
 
-- "Review my resume and tell me what to improve."
-- "Add this experience to my resume."
-- "What's still wrong with this version / proofread it."
+- "Make me a resume, I'll talk through my experience."
+- "Optimize my old resume and export a PDF."
+- "Turn my resume into English."
+- "Lay it out, I'm about to send it."
 
-## File layout
+## Layout
 
 ```
 resume-tuning/
-├── SKILL.md                          # Workflow definition
+├── SKILL.md                       interactive workflow
 ├── references/
-│   └── resume-standards.md           # Good-resume standards + bad-resume issues + checklist
+│   └── resume-standards.md        good-resume standards + proofreading checklist
+├── assets/
+│   ├── banner.svg
+│   └── templates/                 classic / minimal / modern
 └── examples/
-    └── before-after-example.md       # One entry, before and after
+    └── before-after-example.md    one entry, before and after
 ```
 
 ## Where the standards come from
 
-`references/resume-standards.md` distills a set of job-hunting lessons: the nature of a resume (10-second sales copy), 9 core standards (one page, one line per point, strongest point first, quantify with STAR, no bare skill lists, back claims with evidence, plant hooks, stay honest, write the self-summary as past / present / future), and a proofreading checklist built from repeated mistakes.
+`references/resume-standards.md` is distilled from real job-hunting practice: a resume is sales copy with a 10-second lifespan — one page, one line per point, strongest point first, numbers over adjectives, no bare skill lists, claims backed by evidence, hooks that make the interviewer ask, honesty, and a self-summary that says where you came from, where you are, and where you're headed. Plus a proofreading checklist built from repeated mistakes.
 
 ## License
 

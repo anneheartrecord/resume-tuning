@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 340" font-family="-apple-system, 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f7f6f0"/>
+      <stop offset="1" stop-color="#eef1f0"/>
+    </linearGradient>
+    <filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#1a1a1a" flood-opacity="0.14"/>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="340" rx="14" fill="url(#bg)"/>
+  <rect x="0" y="0" width="8" height="340" fill="#2f5c8a"/>
+
+  <!-- left: title + tagline -->
+  <text x="60" y="86" fill="#2f5c8a" font-size="16" font-weight="700" letter-spacing="3">CLAUDE CODE · SKILL</text>
+  <text x="58" y="150" fill="#1a1a1a" font-size="58" font-weight="800" letter-spacing="-1">resume-tuning</text>
+  <text x="62" y="196" fill="#3a3a3a" font-size="22">口述几句，或丢一份旧简历进来，</text>
+  <text x="62" y="228" fill="#3a3a3a" font-size="22">挑个版式，拿走一份能投的<tspan fill="#2f5c8a" font-weight="700">一页 PDF</tspan>。</text>
+
+  <!-- style chips -->
+  <g font-size="14" font-weight="600">
+    <rect x="62" y="258" width="84" height="26" rx="13" fill="#2f5c8a"/>
+    <text x="104" y="276" fill="#fff" text-anchor="middle">classic</text>
+    <rect x="156" y="258" width="88" height="26" rx="13" fill="#fff" stroke="#999"/>
+    <text x="200" y="276" fill="#555" text-anchor="middle">minimal</text>
+    <rect x="254" y="258" width="86" height="26" rx="13" fill="#0f766e"/>
+    <text x="297" y="276" fill="#fff" text-anchor="middle">modern</text>
+  </g>
+
+  <!-- right: 3 fanned resume thumbnails -->
+  <!-- classic -->
+  <g transform="translate(720,170) rotate(-7)" filter="url(#sh)">
+    <rect x="-75" y="-105" width="150" height="210" rx="6" fill="#fff"/>
+    <rect x="-58" y="-86" width="46" height="11" rx="2" fill="#2f5c8a"/>
+    <rect x="-6" y="-83" width="64" height="5" rx="2" fill="#ccc"/>
+    <rect x="-58" y="-64" width="116" height="4" rx="2" fill="#ddd"/>
+    <rect x="-58" y="-54" width="100" height="4" rx="2" fill="#ddd"/>
+    <rect x="-58" y="-30" width="40" height="11" rx="2" fill="#2f5c8a"/>
+    <rect x="-58" y="-10" width="116" height="4" rx="2" fill="#ddd"/>
+    <rect x="-58" y="0" width="108" height="4" rx="2" fill="#ddd"/>
+    <rect x="-58" y="10" width="112" height="4" rx="2" fill="#ddd"/>
+    <rect x="-58" y="36" width="44" height="11" rx="2" fill="#2f5c8a"/>
+    <rect x="-58" y="56" width="116" height="4" rx="2" fill="#ddd"/>
+    <rect x="-58" y="66" width="96" height="4" rx="2" fill="#ddd"/>
+  </g>
+  <!-- minimal (back center) -->
+  <g transform="translate(900,165)" filter="url(#sh)">
+    <rect x="-75" y="-108" width="150" height="216" rx="6" fill="#fff"/>
+    <rect x="-30" y="-88" width="60" height="8" rx="2" fill="#444"/>
+    <rect x="-58" y="-72" width="116" height="2" rx="1" fill="#bbb"/>
+    <rect x="-58" y="-52" width="50" height="6" rx="1" fill="#777"/>
+    <rect x="-58" y="-38" width="116" height="3" rx="1" fill="#e0e0e0"/>
+    <rect x="-58" y="-30" width="104" height="3" rx="1" fill="#e0e0e0"/>
+    <rect x="-58" y="-8" width="50" height="6" rx="1" fill="#777"/>
+    <rect x="-58" y="6" width="116" height="3" rx="1" fill="#e0e0e0"/>
+    <rect x="-58" y="14" width="110" height="3" rx="1" fill="#e0e0e0"/>
+    <rect x="-58" y="40" width="50" height="6" rx="1" fill="#777"/>
+    <rect x="-58" y="54" width="116" height="3" rx="1" fill="#e0e0e0"/>
+  </g>
+  <!-- modern (front right) -->
+  <g transform="translate(1075,172) rotate(7)" filter="url(#sh)">
+    <rect x="-75" y="-105" width="150" height="210" rx="6" fill="#fff"/>
+    <rect x="-75" y="-105" width="150" height="42" rx="6" fill="#0f766e"/>
+    <rect x="-75" y="-75" width="150" height="12" fill="#0f766e"/>
+    <rect x="-60" y="-92" width="60" height="9" rx="2" fill="#fff"/>
+    <rect x="-60" y="-78" width="40" height="5" rx="2" fill="#bfe0db"/>
+    <rect x="-60" y="-50" width="40" height="9" rx="2" fill="#0f766e"/>
+    <rect x="-60" y="-32" width="120" height="4" rx="2" fill="#ddd"/>
+    <rect x="-60" y="-22" width="104" height="4" rx="2" fill="#ddd"/>
+    <rect x="-60" y="2" width="40" height="9" rx="2" fill="#0f766e"/>
+    <rect x="-60" y="20" width="120" height="4" rx="2" fill="#ddd"/>
+    <rect x="-60" y="30" width="112" height="4" rx="2" fill="#ddd"/>
+    <rect x="-60" y="54" width="40" height="9" rx="2" fill="#0f766e"/>
+    <rect x="-60" y="72" width="116" height="4" rx="2" fill="#ddd"/>
+  </g>
+</svg>

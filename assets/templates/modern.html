@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<!-- 版式 modern：彩色页眉卡片 + 左竖条强调的栏目标题，青绿色系，醒目有设计感。
+     适合产品/设计/市场/增长岗，或想在一堆白底简历里跳出来的人。
+     body 结构与 classic/minimal 完全一致，内容可直接套用；只改 <body>，CSS 不动。 -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>{{NAME}} · Resume</title>
+<meta name="author" content="{{NAME}}">
+<meta name="description" content="{{ONE_LINE_SUMMARY ≤150 chars}}">
+<meta name="keywords" content="{{3-6 keywords}}">
+<meta name="generator" content="Kami">
+<style>
+  @page { size: A4; margin: 9mm 12mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --accent: #0f766e; --accent-soft: #e6f1ef; }
+  body { font-family: "Helvetica Neue", Helvetica, Arial, "PingFang SC", sans-serif; color: #242424; font-size: 9pt; line-height: 1.32; }
+  a { color: var(--accent); text-decoration: none; }
+
+  .header { display: flex; justify-content: space-between; align-items: flex-end;
+            background: var(--accent); color: #fff; padding: 4.5mm 6mm; border-radius: 4pt; margin-bottom: 3mm; }
+  .name { font-size: 22pt; font-weight: 700; color: #fff; letter-spacing: 0.3pt; }
+  .name .zh { font-size: 13pt; font-weight: 400; color: #cfe6e2; margin-left: 2.5mm; }
+  .role { font-size: 10.5pt; color: #d6ebe8; font-weight: 600; margin-top: 1mm; }
+  .contact { font-size: 8.6pt; color: #eaf5f3; line-height: 1.7; text-align: right; }
+  .contact a { color: #fff; text-decoration: underline; text-underline-offset: 1.5pt; }
+  .contact .sep { color: #6cb3aa; margin: 0 0.4em; }
+
+  .sec { display: flex; align-items: center; margin: 3mm 0 1.6mm; }
+  .sec .tag { background: none; color: var(--accent); font-weight: 700; font-size: 11pt;
+              border-left: 3pt solid var(--accent); padding: 0 0 0 2.5mm; letter-spacing: 0.2pt; white-space: nowrap; }
+  .sec .line { flex: 1; height: 0; border-bottom: 1pt solid var(--accent-soft); margin-left: 2.5mm; }
+
+  .job { margin-bottom: 2.2mm; }
+  .job-head { display: flex; justify-content: space-between; align-items: baseline; }
+  .job-co { font-size: 10.5pt; font-weight: 700; color: #1a1a1a; }
+  .job-date { font-size: 8.8pt; color: #6b6b6b; font-weight: 600; white-space: nowrap; }
+  .job-sub { display: flex; justify-content: space-between; align-items: baseline; font-size: 9pt; color: #555; margin: 0.3mm 0 1mm; }
+  .job-role { font-weight: 600; color: var(--accent); }
+  .job-tier { color: #6b6b6b; font-weight: 600; }
+
+  ul { list-style: none; }
+  .b { position: relative; padding-left: 3.4mm; margin: 0.5mm 0; }
+  .b::before { content: "▸"; position: absolute; left: 0.4mm; color: var(--accent); font-size: 8pt; }
+  .b .lead { font-weight: 700; color: #1a1a1a; }
+  .hl { color: var(--accent); font-weight: 600; }
+
+  .sub { padding-left: 3.6mm; }
+  .sub .b2 { position: relative; padding-left: 3.2mm; margin: 0.35mm 0; color: #3a3a3a; }
+  .sub .b2::before { content: "–"; position: absolute; left: 0.4mm; color: #9cc4be; }
+
+  .skill { position: relative; padding-left: 3.4mm; margin: 0.7mm 0; }
+  .skill::before { content: "▸"; position: absolute; left: 0.4mm; color: var(--accent); font-size: 8pt; }
+  .skill .k { font-weight: 700; color: #1a1a1a; }
+
+  .edu { display: flex; justify-content: space-between; align-items: baseline; }
+  .edu .school { font-weight: 700; font-size: 10pt; }
+  .edu .meta { color: #555; font-size: 9pt; }
+  .edu .date { color: #6b6b6b; font-size: 8.8pt; font-weight: 600; }
+
+  body.dense { font-size: 8.7pt; line-height: 1.26; }
+  body.dense .sec { margin: 2.2mm 0 1.2mm; }
+  body.dense .job { margin-bottom: 1.6mm; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="name">{{NAME}}<span class="zh">{{NATIVE_NAME 可省}}</span></div>
+    <div class="role">{{TARGET_ROLE}}</div>
+  </div>
+  <div class="contact">
+    {{PHONE 可省}}<span class="sep">·</span><a href="mailto:{{EMAIL}}">{{EMAIL}}</a><br>
+    <a href="{{GITHUB_URL}}">{{github.com/xxx}}</a><span class="sep">·</span><a href="{{X_URL}}">{{x.com/xxx}}</a><br>
+    <a href="{{SITE_URL}}">{{your-site.com}}</a><span class="sep">·</span>{{LOCATION}}
+  </div>
+</div>
+
+<div class="sec"><span class="tag">Summary</span><span class="line"></span></div>
+<ul>
+  <li class="b"><span class="lead">{{标签}}:</span> {{带论据的一句}}</li>
+  <li class="b"><span class="lead">{{标签}}:</span> {{带论据的一句，关键数字用 <span class="hl">…</span>}}</li>
+</ul>
+
+<div class="sec"><span class="tag">Experience</span><span class="line"></span></div>
+<div class="job">
+  <div class="job-head"><span class="job-co">{{公司}}</span><span class="job-date">{{2026.05 – Present}}</span></div>
+  <div class="job-sub"><span class="job-role">{{职位}}</span><span class="job-tier">{{部门 / 职级 可省}}</span></div>
+  <ul>
+    <li class="b">{{一句话背景 + 你的位置}}</li>
+    <li class="b"><span class="lead">{{子项}}:</span> {{做了什么 + <span class="hl">量化结果</span>}}
+      <div class="sub"><div class="b2">{{更细的动作/结果}}</div></div>
+    </li>
+  </ul>
+</div>
+
+<div class="sec"><span class="tag">Skills</span><span class="line"></span></div>
+<div class="skill"><span class="k">{{方向1}}:</span> {{描述，可挂 <a href="项目/作品URL">名称</a>}}.</div>
+<div class="skill"><span class="k">{{方向2}}:</span> {{描述}}.</div>
+
+<div class="sec"><span class="tag">Education</span><span class="line"></span></div>
+<div class="edu">
+  <div><span class="school">{{学校}}</span><span class="meta"> · {{专业 · 学位 · 城市}}</span></div>
+  <div class="date">{{2020.09 – 2024.06}}</div>
+</div>
+
+</body>
+</html>
