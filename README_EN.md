@@ -4,9 +4,9 @@
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Language](https://img.shields.io/badge/language-Markdown-lightgrey.svg)
-![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-orange.svg)
+![Skill](https://img.shields.io/badge/type-Skill-orange.svg)
 
-A Claude Code skill for technical people to diagnose and optimize their resumes.
+A skill for technical people to diagnose and optimize their resumes.
 
 ## What it solves
 
@@ -43,15 +43,15 @@ Resume ──► Step 0 Read the standards (references/resume-standards.md)
 
 ## Install
 
-Drop the whole directory into Claude Code's skills folder:
+Drop the whole directory into your AI agent's skills folder (e.g. `~/.claude/skills/`):
 
 ```bash
-git clone https://github.com/anneheartrecord/resume-tuning.git ~/.claude/skills/resume-tuning
+git clone https://github.com/anneheartrecord/resume-tuning.git resume-tuning
 ```
 
 ## Usage
 
-Tell Claude Code:
+Tell your AI assistant:
 
 - "Review my resume and tell me what to improve."
 - "Add this experience to my resume."

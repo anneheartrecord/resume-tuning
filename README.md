@@ -4,9 +4,9 @@
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Language](https://img.shields.io/badge/language-Markdown-lightgrey.svg)
-![Claude Code](https://img.shields.io/badge/Claude%20Code-Skill-orange.svg)
+![Skill](https://img.shields.io/badge/type-Skill-orange.svg)
 
-一个面向技术人员的 Claude Code skill，用来诊断和优化简历。
+一个面向技术人员的 skill，用来诊断和优化简历。
 
 ## 这个 skill 解决什么问题
 
@@ -43,15 +43,15 @@
 
 ## 安装
 
-把整个目录放到 Claude Code 的 skills 目录下：
+把整个目录放到你的 AI agent 的 skills 目录下（例如 `~/.claude/skills/`）：
 
 ```bash
-git clone https://github.com/anneheartrecord/resume-tuning.git ~/.claude/skills/resume-tuning
+git clone https://github.com/anneheartrecord/resume-tuning.git resume-tuning
 ```
 
 ## 使用
 
-对 Claude Code 说：
+对你的 AI 助手说：
 
 - 「看下我的简历，有哪些可以优化」
 - 「帮我把 XX 这段经历加进简历」
