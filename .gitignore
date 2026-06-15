@@ -12,3 +12,6 @@
 assets/fonts/*.ttf
 assets/fonts/*.otf
 assets/fonts/*.ttc
+
+# README demo 图例外放行（公开人物示意简历，无隐私问题）
+!assets/demos/*.png

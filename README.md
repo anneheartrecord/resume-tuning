@@ -16,6 +16,17 @@ resume-tuning 是一个交互式简历生成器，是一个 skill。给它一份
 - 内容按好简历的标准过一遍：该量化的量化、空话删掉、最亮点放最前；专有名词大小写和错别字也顺手校了。
 - 缺的数据不替你编，会标出来让你自己补。
 
+## 三种版式长这样
+
+下面三份是用公开人物的公开资料编的**示意样张**（非本人真迹），各套一种版式，顺带展示它怎么适配不同岗位：
+
+| classic · 创始人/高管 | modern · 设计师 | minimal · 学者/研究 |
+|---|---|---|
+| ![Sam Altman](./assets/demos/altman-classic.png) | ![Jony Ive](./assets/demos/ive-modern.png) | ![Andrew Ng](./assets/demos/ng-minimal.png) |
+| Sam Altman | Jony Ive | Andrew Ng |
+
+排版美学参考了 [tw93/Kami](https://github.com/tw93/Kami)。
+
 ## 实际效果
 
 同一段内容，进去前和出来后的差别。

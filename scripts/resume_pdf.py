@@ -2,11 +2,12 @@
 """resume-tuning 的 PDF 工具：提取来源简历、渲染并自动压到一页。
 
 子命令：
-  extract <in.pdf>            提取文本 + 已嵌超链接，并判断是否图片/扫描型（需走视觉 OCR）。
-  render  <in.html> <out.pdf> 渲染成 PDF；若超过一页，自动逐级压缩重渲染，直到一页或压无可压。
+  extract <in.pdf>             提取文本 + 已嵌超链接，并判断是否图片/扫描型（需走视觉 OCR）。
+  render  <in.html> <out.pdf>  渲染成一页 PDF：自动缩放填满/压进一页 + 占位符泄漏检查。
+  preview <h1.html> [h2 ...]   渲染多个版式 HTML，各出一页 PDF + PNG（macOS），供对比选版式。
 
-设计目标：把「渲染到刚好一页」「核对链接」「识别扫描件」这些机械活做成确定性流程，
-而不是每次让模型手工试。依赖 weasyprint + pypdf。
+设计目标：把「渲染到刚好一页」「核对链接」「识别扫描件」「出图选版式」这些机械活
+做成确定性流程，而不是每次让模型手工试。依赖 weasyprint + pypdf。
 """
 
 import os
@@ -143,56 +144,148 @@ def _cjk_font_uris() -> "tuple[str, str] | None":
     return None
 
 
-def render_one_page(html_path: str, out_path: str) -> int:
-    """渲染 HTML 到 PDF；超过一页就逐级压缩重渲染，直到一页或压无可压。"""
-    from weasyprint import HTML
+# 放大上限：内容太少时最多放到 1.25×，再大字号就丑了，应该让用户补内容而不是吹字号。
+_MAX_MAGNIFY = 1.25
+# 缩小下限：内容太多时最多缩到 0.6×，再小就读不动了，应该让用户删内容。
+_MIN_SHRINK = 0.6
 
-    base_url = os.path.dirname(os.path.abspath(html_path))
+# 半成品标记：渲染后若 PDF 文本层还残留这些，说明没填完就交付了。
+_PLACEHOLDER_PATTERNS = (
+    (r"\{\{[^}]*\}\}", "模板占位符 {{...}}"),
+    (r"\[DATA NEEDED[^\]]*\]", "待补数字 [DATA NEEDED]"),
+    (r"__CJK_(?:REGULAR|BOLD)__", "字体占位符 __CJK_*__"),
+)
+
+
+def _check_placeholder_leak(pdf_path: str) -> list[str]:
+    """扫 PDF 文本层，返回残留的半成品标记列表（空 = 干净）。"""
+    from pypdf import PdfReader
+
+    text = "".join((p.extract_text() or "") for p in PdfReader(pdf_path).pages)
+    leaks: list[str] = []
+    for pattern, label in _PLACEHOLDER_PATTERNS:
+        hits = re.findall(pattern, text)
+        if hits:
+            leaks.append(f"{label}: {hits[:3]}")
+    return leaks
+
+
+def _prepare_html(html_path: str) -> "tuple[str, bool]":
+    """读 HTML、替换 CJK 字体占位符。返回 (html, cjk_font_used)。"""
     html = open(html_path, encoding="utf-8").read()
     fonts = _cjk_font_uris()
     if fonts:
-        html = html.replace("__CJK_REGULAR__", fonts[0]).replace("__CJK_BOLD__", fonts[1])
-    else:
-        # 没有 CJK 字体：删掉占位 @font-face 行，避免 src:url("__CJK_*__") 坏链接。
-        # 纯英文简历照常渲染；中文简历会缺字形，需按 README 装 OFL 字体。
-        html = re.sub(r'\s*@font-face\s*\{[^}]*__CJK_(?:REGULAR|BOLD)__[^}]*\}', '', html)
-        print("NOTE: 未找到 CJK 字体，中文将无法正确渲染。装 OFL 字体或设 RESUME_CJK_REGULAR，见 README。")
-    def render_at(factor: float) -> tuple[int, list[str]]:
+        return html.replace("__CJK_REGULAR__", fonts[0]).replace("__CJK_BOLD__", fonts[1]), True
+    # 没有 CJK 字体：删掉占位 @font-face 行，避免 src:url("__CJK_*__") 坏链接。
+    # 纯英文简历照常渲染；中文简历会缺字形，需按 README 装 OFL 字体（跑 ensure-fonts.sh）。
+    html = re.sub(r"\s*@font-face\s*\{[^}]*__CJK_(?:REGULAR|BOLD)__[^}]*\}", "", html)
+    return html, False
+
+
+def _render_autofit(html_path: str, out_path: str) -> dict:
+    """渲染并自动缩放到刚好一页，返回结构化结果 dict。
+
+    内容不足一页 → 等比放大填页（上限 _MAX_MAGNIFY）。
+    内容超过一页 → 等比缩小进页（下限 _MIN_SHRINK）。
+    """
+    from weasyprint import HTML
+
+    base_url = os.path.dirname(os.path.abspath(html_path))
+    html, cjk_font_used = _prepare_html(html_path)
+
+    def render_at(factor: float) -> int:
         scaled = html if factor == 1.0 else _scale_style_block(html, factor)
         HTML(string=scaled, base_url=base_url).write_pdf(out_path)
-        return pdf_pages_and_links(out_path)
+        return pdf_pages_and_links(out_path)[0]
 
-    pages, links = render_at(1.0)
+    pages = render_at(1.0)
     best_factor = 1.0
+    hit_magnify_cap = False
 
     if pages == 1:
-        # 内容没撑满一页 → 等比放大，找仍能保持 1 页的最大尺寸，把页面填起来。
         factor = 1.0
-        while factor < 1.6:
+        while round(factor + 0.05, 2) <= _MAX_MAGNIFY:
             factor = round(factor + 0.05, 2)
-            page_count, _ = render_at(factor)
-            if page_count == 1:
+            if render_at(factor) == 1:
                 best_factor = factor
             else:
                 break
+        else:
+            hit_magnify_cap = best_factor >= _MAX_MAGNIFY
     else:
-        # 超过一页 → 等比缩小，找第一个能塞进 1 页的尺寸。
         factor = 1.0
-        while factor > 0.6:
+        while round(factor - 0.05, 2) >= _MIN_SHRINK:
             factor = round(factor - 0.05, 2)
-            page_count, _ = render_at(factor)
-            if page_count == 1:
+            if render_at(factor) == 1:
                 best_factor = factor
                 break
 
-    pages, links = render_at(best_factor)
-    print(f"pages: {pages}")
-    print(f"links: {links}")
-    print(f"scale_factor: {best_factor}  (>1 放大填页 / <1 压缩进页)")
-    if pages > 1:
-        print("WARNING: 缩到最小仍超过一页 —— 内容太多，需要人工删减经历/要点再渲染。")
-        return 1
-    return 0
+    pages, links = (lambda f: (render_at(f), pdf_pages_and_links(out_path)[1]))(best_factor)
+    return {
+        "pages": pages,
+        "links": links,
+        "scale_factor": best_factor,
+        "cjk_font_used": cjk_font_used,
+        "placeholder_leak": _check_placeholder_leak(out_path),
+        "hit_magnify_cap": hit_magnify_cap,
+    }
+
+
+def _print_result(name: str, r: dict) -> None:
+    print(f"[{name}]")
+    print(f"  pages: {r['pages']}")
+    print(f"  scale_factor: {r['scale_factor']}  (>1 放大填页 / <1 压缩进页)")
+    print(f"  cjk_font_used: {r['cjk_font_used']}")
+    print(f"  links: {r['links']}")
+    if r["placeholder_leak"]:
+        print(f"  WARNING 占位符泄漏（半成品，别交付）: {r['placeholder_leak']}")
+    if not r["cjk_font_used"]:
+        print("  NOTE: 未找到 CJK 字体，中文将无法正确渲染。跑 scripts/ensure-fonts.sh 或设 RESUME_CJK_REGULAR。")
+    if r["pages"] > 1:
+        print("  WARNING: 缩到下限仍超过一页 —— 内容太多，删减经历/要点再渲染。")
+    if r["hit_magnify_cap"]:
+        print(f"  NOTE: 已放大到上限 {_MAX_MAGNIFY}× 仍未填满 —— 内容偏少，建议补经历，别靠放大撑页。")
+
+
+def render_one_page(html_path: str, out_path: str) -> int:
+    """渲染 HTML 到一页 PDF，自动缩放 + 占位符泄漏检查。"""
+    result = _render_autofit(html_path, out_path)
+    _print_result(os.path.basename(out_path), result)
+    # 超过一页或占位符泄漏 → 非零退出，提醒这不是合格成品。
+    return 1 if (result["pages"] > 1 or result["placeholder_leak"]) else 0
+
+
+def _rasterize(pdf_path: str) -> "str | None":
+    """macOS 上用 qlmanage 把 PDF 转成 PNG（和预览同一套渲染），返回 PNG 路径。"""
+    if sys.platform != "darwin":
+        return None
+    out_dir = os.path.dirname(os.path.abspath(pdf_path)) or "."
+    subprocess.run(
+        ["qlmanage", "-t", "-s", "1400", "-o", out_dir, pdf_path],
+        capture_output=True,
+    )
+    png = os.path.join(out_dir, os.path.basename(pdf_path) + ".png")
+    return png if os.path.exists(png) else None
+
+
+def preview(html_paths: list[str]) -> int:
+    """渲染多个填好的版式 HTML，各出一页 PDF + PNG，供对比选版式。
+
+    用法：把同一份内容分别填进 classic/minimal/modern 三个模板，
+    把三个 HTML 路径传进来，一次出三张图，让 agent/用户直接对比挑版式。
+    """
+    any_issue = False
+    for html_path in html_paths:
+        stem = os.path.splitext(html_path)[0]
+        pdf_path = stem + ".pdf"
+        result = _render_autofit(html_path, pdf_path)
+        _print_result(os.path.basename(html_path), result)
+        png = _rasterize(pdf_path)
+        print(f"  pdf: {pdf_path}")
+        print(f"  png: {png or '(非 macOS，跳过转图)'}")
+        if result["pages"] > 1 or result["placeholder_leak"]:
+            any_issue = True
+    return 1 if any_issue else 0
 
 
 def main(argv: list[str]) -> int:
@@ -200,6 +293,8 @@ def main(argv: list[str]) -> int:
         return extract_source(argv[2])
     if len(argv) >= 2 and argv[1] == "render" and len(argv) == 4:
         return render_one_page(argv[2], argv[3])
+    if len(argv) >= 3 and argv[1] == "preview":
+        return preview(argv[2:])
     print(__doc__)
     return 2
 

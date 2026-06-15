@@ -16,6 +16,17 @@ resume-tuning is an interactive resume generator, packaged as a skill. Give it a
 - Content run against good-resume standards: quantified, fluff cut, strongest point first; term casing and typos fixed too.
 - Missing data is never invented — it's flagged for you to fill.
 
+## What the three layouts look like
+
+The three below are **illustrative samples** built from public figures' public bios (not their actual resumes), each in one layout — also showing how it adapts across roles:
+
+| classic · founder/exec | modern · designer | minimal · academic |
+|---|---|---|
+| ![Sam Altman](./assets/demos/altman-classic.png) | ![Jony Ive](./assets/demos/ive-modern.png) | ![Andrew Ng](./assets/demos/ng-minimal.png) |
+| Sam Altman | Jony Ive | Andrew Ng |
+
+Typography aesthetics inspired by [tw93/Kami](https://github.com/tw93/Kami).
+
 ## What it does, concretely
 
 Same content, before and after.
