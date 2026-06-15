@@ -6,7 +6,7 @@
 ![Language](https://img.shields.io/badge/language-Markdown-lightgrey.svg)
 ![Skill](https://img.shields.io/badge/type-Skill-orange.svg)
 
-resume-tuning 是一个交互式简历生成器，做成了 Claude Code skill。给它一份旧简历，或者只口述几段经历，它跟你来回几轮，最后交付一份排好版、链接能点、刚好一页的 **PDF**。不挑岗位，技术、产品、设计、运营、还在读书的都能用。
+resume-tuning 是一个交互式简历生成器，是一个 skill。给它一份旧简历，或者只口述几段经历，它跟你来回几轮，最后交付一份排好版、链接能点、刚好一页的 **PDF**。不挑岗位，技术、产品、设计、运营、还在读书的都能用。
 
 ## 能拿到什么
 

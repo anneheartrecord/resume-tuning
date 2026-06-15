@@ -6,7 +6,7 @@
 ![Language](https://img.shields.io/badge/language-Markdown-lightgrey.svg)
 ![Skill](https://img.shields.io/badge/type-Skill-orange.svg)
 
-resume-tuning is an interactive resume generator, packaged as a Claude Code skill. Give it an old resume, or just talk through a few experiences. It goes a few rounds with you and delivers a typeset, one-page **PDF** with working links. It works for any role — engineering, product, design, marketing, students.
+resume-tuning is an interactive resume generator, packaged as a skill. Give it an old resume, or just talk through a few experiences. It goes a few rounds with you and delivers a typeset, one-page **PDF** with working links. It works for any role — engineering, product, design, marketing, students.
 
 ## What you get
 
