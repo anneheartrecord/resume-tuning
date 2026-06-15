@@ -6,35 +6,39 @@
 ![Language](https://img.shields.io/badge/language-Markdown-lightgrey.svg)
 ![Skill](https://img.shields.io/badge/type-Skill-orange.svg)
 
-Two things always annoyed me about resumes. One: fighting a template to fit one page, then exporting and still getting two. Two: turning X, GitHub and project links into things you can actually click, by hand, missing one every time.
+resume-tuning is an interactive resume generator, packaged as a Claude Code skill. Give it an old resume, or just talk through a few experiences. It goes a few rounds with you and delivers a typeset, one-page **PDF** with working links. It works for any role — engineering, product, design, marketing, students.
 
-resume-tuning takes care of both. Hand it an old resume, or just talk through a few experiences. It asks you some questions, generates a few layouts to choose from, and gives you a typeset, one-page **PDF** with working links.
+## What you get
 
-It's a Claude Code skill, and it works for anyone — engineering, product, design, marketing, students.
+- A one-page PDF — not Markdown, not plain text.
+- Three layouts — **classic / minimal / modern** — same content, switch freely.
+- Email, GitHub, site, projects, blog all turned into clickable links.
+- Content run against good-resume standards: quantified, fluff cut, strongest point first; term casing and typos fixed too.
+- Missing data is never invented — it's flagged for you to fill.
 
-## How it works
+## What it does, concretely
 
-It doesn't generate in one shot. It goes a few rounds with you:
+Same content, before and after.
 
-1. Figure out what you have. If there's an old resume, it reads it — including the hyperlinks already embedded inside. If you only have scattered notes, it asks for them.
-2. Ask a few personalization questions: target role, what to lead with, Chinese or English, whether to include a portfolio or open-source section.
-3. Run the content against the good-resume standards: quantify what should be quantified, cut the fluff, fix typos and term casing (`DevOps`, `Kubernetes`).
-4. Fill the same content into three layouts — classic, minimal, modern — as drafts for you to pick from.
-5. Polish the chosen one to exactly one page, make X / GitHub / site / projects / blog clickable, and export the PDF.
+An experience bullet, before:
 
-It won't invent missing data; it flags gaps for you to fill.
+> Responsible for server-side development, improved system performance and ensured stability.
 
-## Three layouts
+After:
 
-| Layout | Look | Who it fits |
-|---|---|---|
-| **classic** | Blue section tags, steady and general | Most people, technical roles |
-| **minimal** | Serif, thin rules, lots of whitespace | Senior, management, academic |
-| **modern** | Colored header card, eye-catching | Product, design, marketing |
+> Led optimization of the core transaction API; multi-level cache + async decoupling cut P99 from 800ms to 120ms, lifted QPS 5x, and supported 100K concurrent users during peak sales.
 
-Same content, different CSS. Switch freely without losing anything.
+A self-summary, before:
 
-## Install
+> Self-driven, fast learner, strong sense of responsibility.
+
+After:
+
+> **Self-driven**: kept publishing technical writing outside of work — 150K+ cumulative reads.
+
+More in [`examples/before-after-example.md`](./examples/before-after-example.md).
+
+## How to use
 
 Drop the folder into your agent's skills directory, e.g. `~/.claude/skills/`:
 
@@ -42,39 +46,25 @@ Drop the folder into your agent's skills directory, e.g. `~/.claude/skills/`:
 git clone https://github.com/anneheartrecord/resume-tuning.git resume-tuning
 ```
 
-Rendering uses WeasyPrint. Install the dependencies once:
+Rendering uses WeasyPrint — install the dependencies once:
 
 ```bash
 brew install pango gdk-pixbuf libffi
 python3 -m venv ~/.venv && ~/.venv/bin/pip install weasyprint pypdf
 ```
 
-## Usage
+Then just tell your AI assistant: "Make me a resume, I'll talk through my experience" / "Optimize this old resume and export a PDF" / "Turn my resume into English."
 
-Just tell your AI assistant:
+## Recommended workflow
 
-- "Make me a resume, I'll talk through my experience."
-- "Optimize my old resume and export a PDF."
-- "Turn my resume into English."
-- "Lay it out, I'm about to send it."
+- Hand over everything up front: the old resume, the one or two things you most want to highlight, the target role. Answer its questions concretely — output quality tracks this step.
+- Once the three draft layouts are out, pick one, then refine. Don't fixate on one layout's font size before choosing.
+- Wherever it leaves `[DATA NEEDED]`, fill in real numbers before finalizing. Don't let it guess — interviewers will catch it.
+- For different companies, let it switch layout and re-weight emphasis. One resume shouldn't fit all.
 
-## Layout
+## references
 
-```
-resume-tuning/
-├── SKILL.md                       interactive workflow
-├── references/
-│   └── resume-standards.md        good-resume standards + proofreading checklist
-├── assets/
-│   ├── banner.svg
-│   └── templates/                 classic / minimal / modern
-└── examples/
-    └── before-after-example.md    one entry, before and after
-```
-
-## Where the standards come from
-
-`references/resume-standards.md` is distilled from real job-hunting practice: a resume is sales copy with a 10-second lifespan — one page, one line per point, strongest point first, numbers over adjectives, no bare skill lists, claims backed by evidence, hooks that make the interviewer ask, honesty, and a self-summary that says where you came from, where you are, and where you're headed. Plus a proofreading checklist built from repeated mistakes.
+The standards live in [`references/resume-standards.md`](./references/resume-standards.md), distilled from real job-hunting practice: a resume is sales copy with a 10-second lifespan — one page, one line per point, strongest point first, numbers over adjectives, no bare skill lists, claims backed by evidence, hooks that make the interviewer ask, honesty, and a self-summary that says where you came from, where you are, where you're headed. Plus a proofreading checklist built from repeated mistakes.
 
 ## License
 

@@ -7,3 +7,8 @@
 *.jpeg
 .idea/
 .vscode/
+
+# 字体二进制不入库（含商业字体许可风险）
+assets/fonts/*.ttf
+assets/fonts/*.otf
+assets/fonts/*.ttc
