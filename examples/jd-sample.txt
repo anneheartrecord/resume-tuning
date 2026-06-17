@@ -1,0 +1,5 @@
+Senior Backend Engineer
+
+We are looking for a backend engineer with production experience in Go,
+Kubernetes, PostgreSQL, Redis, CI/CD, and distributed systems. The role owns
+job orchestration services and deployment reliability for AI tooling.

@@ -14,6 +14,7 @@
 import os
 import sys
 import tempfile
+import json
 
 # 让本测试能 import 同级 scripts/ 下的 resume_pdf
 SCRIPTS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -83,39 +84,59 @@ def _pdf_has_cjk_font(pdf_path: str) -> bool:
 
 def run() -> int:
     failures: list[str] = []
+    skipped: list[str] = []
     tmp = tempfile.mkdtemp(prefix="resume_test_")
     cjk_available = resume_pdf._cjk_font_uris() is not None
 
-    # 回归 1 + 2：三套模板渲染、1 页、中文字形在
-    for tpl in ("classic.html", "minimal.html", "modern.html"):
-        html = _fill_template(tpl, _CN_BODY)
-        html_path = os.path.join(tmp, tpl)
-        pdf_path = html_path.replace(".html", ".pdf")
-        open(html_path, "w", encoding="utf-8").write(html)
-        result = resume_pdf._render_autofit(html_path, pdf_path)
+    try:
+        import weasyprint  # noqa: F401
+        import pypdf  # noqa: F401
+    except ImportError as exc:
+        skipped.append(f"PDF 渲染回归（缺依赖：{exc}）")
 
-        if result["pages"] != 1:
-            failures.append(f"{tpl}: 应为 1 页，实际 {result['pages']} 页")
-        if result["placeholder_leak"]:
-            failures.append(f"{tpl}: 干净内容不该报占位符泄漏：{result['placeholder_leak']}")
-        if cjk_available and not _pdf_has_cjk_font(pdf_path):
-            failures.append(f"{tpl}: 有 CJK 字体却没嵌进 PDF（字形丢失回归）")
-        print(f"  {tpl}: pages={result['pages']} cjk_font={result['cjk_font_used']} "
-              f"scale={result['scale_factor']} leak={bool(result['placeholder_leak'])}")
+    metadata_path = os.path.join(TEMPLATES_DIR, "templates.json")
+    with open(metadata_path, encoding="utf-8") as metadata_file:
+        metadata = json.load(metadata_file)
+    for key in ("classic", "minimal", "modern"):
+        if key not in metadata:
+            failures.append(f"templates.json 缺少 {key}")
+            continue
+        item = metadata[key]
+        for required in ("display_name", "recommended_for", "ats_level", "visual_strength"):
+            if required not in item:
+                failures.append(f"templates.json {key} 缺少 {required}")
 
-    # 回归 3：占位符泄漏要能报警
-    leak_body = _CN_BODY + '<div>{{LEAK}} [DATA NEEDED: x]</div>'
-    leak_html = os.path.join(tmp, "leak.html")
-    leak_pdf = leak_html.replace(".html", ".pdf")
-    open(leak_html, "w", encoding="utf-8").write(_fill_template("classic.html", leak_body))
-    leak_result = resume_pdf._render_autofit(leak_html, leak_pdf)
-    if not leak_result["placeholder_leak"]:
-        failures.append("占位符泄漏检查失灵：留了 {{LEAK}} 和 [DATA NEEDED] 却没报")
-    else:
-        print(f"  leak check: 正确报警 {len(leak_result['placeholder_leak'])} 类")
+    if not skipped:
+        # 回归 1 + 2：三套模板渲染、1 页、中文字形在
+        for tpl in ("classic.html", "minimal.html", "modern.html"):
+            html = _fill_template(tpl, _CN_BODY)
+            html_path = os.path.join(tmp, tpl)
+            pdf_path = html_path.replace(".html", ".pdf")
+            open(html_path, "w", encoding="utf-8").write(html)
+            result = resume_pdf._render_autofit(html_path, pdf_path)
 
-    if not cjk_available:
-        print("  NOTE: 未装 CJK 字体，跳过中文字形断言。先跑 scripts/ensure-fonts.sh")
+            if result["pages"] != 1:
+                failures.append(f"{tpl}: 应为 1 页，实际 {result['pages']} 页")
+            if result["placeholder_leak"]:
+                failures.append(f"{tpl}: 干净内容不该报占位符泄漏：{result['placeholder_leak']}")
+            if cjk_available and not _pdf_has_cjk_font(pdf_path):
+                failures.append(f"{tpl}: 有 CJK 字体却没嵌进 PDF（字形丢失回归）")
+            print(f"  {tpl}: pages={result['pages']} cjk_font={result['cjk_font_used']} "
+                  f"scale={result['scale_factor']} leak={bool(result['placeholder_leak'])}")
+
+        # 回归 3：占位符泄漏要能报警
+        leak_body = _CN_BODY + '<div>{{LEAK}} [DATA NEEDED: x]</div>'
+        leak_html = os.path.join(tmp, "leak.html")
+        leak_pdf = leak_html.replace(".html", ".pdf")
+        open(leak_html, "w", encoding="utf-8").write(_fill_template("classic.html", leak_body))
+        leak_result = resume_pdf._render_autofit(leak_html, leak_pdf)
+        if not leak_result["placeholder_leak"]:
+            failures.append("占位符泄漏检查失灵：留了 {{LEAK}} 和 [DATA NEEDED] 却没报")
+        else:
+            print(f"  leak check: 正确报警 {len(leak_result['placeholder_leak'])} 类")
+
+        if not cjk_available:
+            print("  NOTE: 未装 CJK 字体，跳过中文字形断言。先跑 scripts/ensure-fonts.sh")
 
     print()
     if failures:
@@ -123,7 +144,12 @@ def run() -> int:
         for f in failures:
             print(f"  ✗ {f}")
         return 1
-    print("ALL PASSED")
+    if skipped:
+        print(f"ALL PASSED（{len(skipped)} 项跳过，非通过）：")
+        for item in skipped:
+            print(f"  ⊘ {item}")
+    else:
+        print("ALL PASSED")
     return 0
 
 

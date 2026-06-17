@@ -1,105 +1,55 @@
 ---
 name: resume-tuning
-description: 交互式简历生成器，面向**所有岗位**（技术、产品、设计、运营、市场、学生等）。用户给一份现成简历（含 PDF / 图片扫描件）、或只口述/粘贴一些零散经历，都能交付一份排版好的**单页 PDF 简历**。流程是交互式的：先问清个性化输入，再生成几种版式的初稿让用户挑，最后渲染定稿 PDF。当用户说「做/调整/优化简历」「把这段经历做成简历」「生成一份简历」「简历转成英文」「帮我排版简历」时使用。
-version: 3.1.0
-metadata:
-  trigger: 交互式生成 / 优化任意岗位的 PDF 简历
-  audience: 所有人（不限技术岗）
-  deliverable: 单页 PDF（不是纯文本，也不是 Markdown）
-  style: interactive — 分步个性化输入 + 多版式选择
+description: 交互式简历生成器，面向所有岗位（技术、产品、设计、运营、市场、学生、学术等）。用户给一份现成简历（PDF、图片、扫描件、Markdown、文本），或只口述零散经历时，用它生成、优化、诊断、按目标 JD 定制、检查 ATS 可读性，并交付一份链接可点、刚好一页的 PDF 简历。当用户说「做简历」「优化简历」「调整简历」「把经历做成简历」「生成 PDF 简历」「简历转英文」「帮我排版简历」「按这个 JD 调简历」「看看能不能过 ATS」「诊断这份简历」时使用。
 ---
 
-# 交互式简历生成器（resume-tuning）
+# resume-tuning
 
-## Overview
+最终交付物是**一份单页 PDF 简历**。纯文本、Markdown、JSON profile、HTML 都只是中间产物。
 
-最终产物是**一份排版好的单页 PDF 简历**——纯文本/Markdown 只是中间过程，不是交付物。
+这是交互式 skill：先问清目标岗位、语言、优势、可选模块、JD 和隐私场景，再出 2-3 个版式预览让用户选，最后渲染定稿。不要一把梭。
 
-面向**所有岗位**，不只技术人员。判断标准在 `references/resume-standards.md`。版式模板在 `assets/templates/`（classic / minimal / modern）。机械活（提取来源、识别扫描件、渲染并自动压到一页、核对链接）交给 `scripts/resume_pdf.py`，别手搓。
+## Routing
 
-**这是个交互式 skill：不要一把梭生成。** 分步问清输入 → 给几种初稿选 → 定稿。
+先判断用户要做哪类任务，只读对应 reference，再按需读取公共标准。
 
-## 处理流程
+| 用户意图 | 必读 reference |
+|---|---|
+| 从旧 PDF / 图片 / 粘贴文本 / 口述经历生成简历 | `references/intake.md` |
+| 按目标 JD 调整简历、检查关键词覆盖 | `references/tailor-to-jd.md` |
+| 渲染多版式预览、输出最终 PDF | `references/render-and-deliver.md` |
+| 只诊断问题，不直接生成 PDF | `references/review-only.md` |
+| 需要结构化中间数据或脚本校验 | `references/resume-schema.md` |
 
-### Step 0 · 读标准
-读 `references/resume-standards.md`。
+公共标准按任务读取：
 
-### Step 1 · 拿到并提取输入
-- 用 `python3 scripts/resume_pdf.py extract <简历.pdf>`：它会输出文本 + 已嵌超链接，并判断类型。
-  - `TEXT_BASED`：直接用输出的文本，**把已有超链接也记下来**，定稿要带过去。
-  - `IMAGE_BASED`（扫描件 / 图片导出，文本层几乎为空）：**别用提取结果，改用你自己的视觉能力**——直接 Read 这张 PDF/图片，把正文逐字转写出来。这是必须处理的 corner case，不能因为提不出文字就跳过。
-- 用户只口述 / 粘贴零散内容：缺什么问什么。
+- 内容质量：`references/resume-standards.md`
+- 写作硬指标：`references/resume-writing.md`
+- ATS / JD 规则：`references/ats-and-jd.md`
 
-### Step 2 · 问清个性化项（交互，用 AskUserQuestion）
-已知的跳过，别重复问：
-1. **目标岗位 / 行业**——决定措辞和重点。
-2. **最想突出的优势**——决定排序，放第一。
-3. **语言**——中文 / 英文。
-4. **可选模块**——开源 / 作品集 / 获奖 / 校园经历 / 证书。
-- **职位措辞要确认，别擅自拔高**：源简历写「实习生」就别默认改成「工程师」，问一句。
+## Non-Negotiables
 
-### Step 3 · 结构化 + 按身份排序
-拆模块：抬头/联系方式、自我评价、经历、技能/专长、教育，按岗位增删可选模块。
-- **顺序按身份变**：应届生 / 学生 → 教育和项目前置（教育是亮点）；社招 / 有工作经历 → 工作经历前置，教育收尾。
-- **自定义 section 随内容加**：荣誉证书、校园经历、作品集、研究成果都可以单列，模板的 `.sec` + `.skill` 通用。
+- 不编造数字、经历、职位、技能、证书、学校、公司或项目。
+- 缺数据标 `[DATA NEEDED: ...]` 并追问；定稿 PDF 不能残留该标记。
+- JD 匹配只 surface 用户真实具备的能力；真没有的关键词作为缺口反馈，不能塞进简历。
+- 扫描/图片型 PDF 不能依赖文本提取结果，要用视觉 OCR 转写后再结构化。
+- 中文简历必须使用内嵌单文件 CJK 字体，并在定稿前转 PNG 肉眼核验字形。
+- 真实简历、JD、手机号、邮箱等私密内容不要提交到仓库；输出放用户指定目录。
+- 模板 CSS 默认不改；优先只替换 `<body>` 内容。要改模板样式时先确认这是版式优化任务。
 
-### Step 4 · 优化 + 校对
+## Tooling
 
-**输出质量底线（硬性合约，不管原始简历多普通都必须达到）**：你不是誊抄机，是升级器。哪怕来源简历很平庸、只是功能罗列，产出也必须满足：
-1. **尽可能突出亮点**：主动从平淡内容里挖出最有价值的点（最难的技术、最像主导的事、最有数字的结果、最稀缺的经历），放到最显眼的位置——自我评价第一条、经历第一段、要点首句。没人帮他提炼，你来。
-2. **保持良好结构**：清晰分块、按身份/影响力排序、一行一句、最亮点前置。再乱的来源也要重组成扫读 10 秒能抓到重点的结构。
-3. **每条经历遵循 STAR**：Situation 背景 / Task 你负责什么 / Action 你做了什么 / Result 量化结果。来源里只有"做了 X"的功能描述，要主动补出 Action→Result 的因果（"做了 X" → "解决了 Y / 带来了 Z"）；结果数字缺失就标 `[DATA NEEDED]` 追问，但 STAR 的骨架先搭好。
+- 提取 / 渲染 / 预览：`python3 scripts/resume_pdf.py extract|render|preview ...`
+- ATS 检查：`python3 scripts/ats_check.py <final.pdf> --name "<姓名>" --keywords "..."`，或 `--jd jd.txt` 做粗匹配。
+- Profile 校验：`python3 scripts/resume_profile.py validate <profile.json>`
+- JD 分档：`python3 scripts/jd_match.py <profile.json> --keywords "..."`，或 `--jd jd.txt`
+- 内容 lint：`python3 scripts/resume_lint.py <profile.json> --mode draft|final`
 
-具体执行标准在两份参考里，动手前读：
-- **`references/resume-writing.md`**：每条经历三段结构（角色/动作/结果）+ 中英文字数上限、`.hl` 强调密度（每 80–150 字一处）、timeline 演进弧、按岗位调重点。
-- **`references/resume-standards.md` 第六节 anti-patterns 清单**：定稿前逐条扫（形容词无数字、bullet 无结果、技能栏填充词、虚构精度、超 3 处强调色等）。
+## Output Contract
 
-其余动作：量化、带论据、措辞精确、最亮点前置；非技术岗把「技能用项目证明」换成「用成果/作品/数据证明」。
-- **缺量化要主动追问**：扫一遍每段经历，没有硬指标（QPS / 延迟 / 数据量 / 金额 / 占比 / 人数）的，列出来用 `[DATA NEEDED: …]` 标记并问用户补，**绝不替他编**。
-- **技能墙要压缩**：源简历常有一大段「了解…掌握…熟悉…」流水账，按后端/存储/前端工程等分组压成 3–5 行，别原样照搬。
-- 校对：错别字、专有名词大小写（DevOps/Kubernetes）、反斜杠→斜杠、全角字符清理、数字格式统一、明显笔误（如「小说」实为「电影」这类上下文错字）。
+交付时简短说明：
 
-### Step 5 · 出多版式初稿，让用户选（交互核心）
-1. 把**同一份内容**填进 2–3 个版式（classic / minimal / modern），各渲染草稿 PDF。
-2. 一起给用户看，用 AskUserQuestion 让他选（classic=蓝栏稳重通用，minimal=衬线极简资深，modern=彩色页眉醒目）。
-3. 选定后在该版式上精修。
-
-### Step 6 · 渲染定稿 PDF
-- 只改模板 `<body>`，CSS 不动。
-- **超链接做成可点**：邮箱(mailto:)、GitHub、个人站、作品集、开源、博客、社交账号都用 `<a href>` 包起来。
-- 渲染 + 自动压到一页 + 核对链接，一条命令：
-  ```bash
-  python3 scripts/resume_pdf.py render <填好的.html> <输出.pdf>
-  ```
-  它会打印页数、嵌入的链接、施加了哪些压缩。**若打印 WARNING 说仍超一页**，说明内容太多，回去人工删经历/要点再渲染（别靠无限缩字号）。
-- 核对打印出的链接列表，确认齐全、与源简历一致。
-- **中文简历必做肉眼核验**：`qlmanage -t -s 1200 -o <目录> out.pdf` 转成 PNG 再 Read 看一眼，确认中文字形真的渲染出来了（不是空白/乱码）。文字层正确 ≠ 字形正确，这一步不能省。
-
-### Step 7 · 交付
-- PDF 存到用户指定的简历目录（私密内容别进 git）。
-- 简短文本小结：选了哪个版式、改了什么、还有哪些 `[DATA NEEDED]` 待补。
-- 默认**不发送 / 不发布**；要发邮件/挂公开链接先确认。
-
-## 必须处理的 corner case（这是工具，不是 demo）
-1. **图片 / 扫描型 PDF** → 视觉 OCR 转写，不靠 pypdf（Step 1）。
-2. **超过一页** → `render` 自动压；压不动就人工删（Step 6）。
-3. **缺量化数字** → 标 `[DATA NEEDED]` 追问，不编（Step 4）。
-4. **应届生 vs 社招** → 模块顺序不同（Step 3）。
-5. **技能流水账** → 分组压缩（Step 4）。
-6. **中文渲染（致命坑，必看）** → **绝不能靠系统 PingFang（.ttc 字体集合）**：WeasyPrint 对 .ttc 子集化会大面积丢字形，文字层正确但 PDF 在预览里是空白/乱码（Read 看不出来，必须用 `qlmanage -t` 转图核验）。正确做法：模板用 `@font-face` 内嵌 `assets/fonts/` 里的**单文件**开源 CJK 字体（跑 ensure-fonts.sh 自动获取），占位符 `__CJK_REGULAR__/__CJK_BOLD__` 由 `resume_pdf.py` 渲染时自动填真实路径。**做完中文简历必须 qlmanage 转图肉眼确认字形真的在**，别只信页数和文字层。
-7. **职位措辞 / 联系方式取舍** → 跟用户确认，公开分享场景默认去手机号（Step 2）。
-8. **隐私** → 真实简历是私密数据，输出和测试用例只放本地，不进仓库，绝不进任何仓库或对外。
-
-## 渲染环境（缺依赖时）
-```bash
-brew install pango gdk-pixbuf libffi
-python3 -m venv ~/.venv && ~/.venv/bin/pip install weasyprint pypdf
-bash scripts/ensure-fonts.sh   # 首次做中文简历前跑一次，自动拉 OFL 中文字体（已有则跳过）
-```
-`scripts/resume_pdf.py` 在 macOS 上会自动补 `DYLD_FALLBACK_LIBRARY_PATH` 并重 exec，无需手动设。
-跑测试：`python3 scripts/tests/test_render.py`（3 模板 1 页 + 中文字形 + 占位符报警回归）。
-
-## 注意
-- **终态必须是 PDF**；交互式、多版式、面向所有岗位。
-- 不编造数字；一页；中英文同模板。
-- 归档到用户指定目录，不覆盖其他简历除非用户明确要求。
+- 选了哪个版式，以及选择理由。
+- 内容上改了什么：亮点前置、STAR、量化、技能压缩、JD surface。
+- 还有哪些 `[DATA NEEDED]` 或真实技能缺口。
+- 定稿检查结果：一页、链接、ATS、中文 glyph、占位符是否通过。

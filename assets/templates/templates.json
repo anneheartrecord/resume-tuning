@@ -1,0 +1,29 @@
+{
+  "classic": {
+    "display_name": "Classic",
+    "description": "蓝色栏目、公司加粗、日期右对齐，稳重通用。",
+    "recommended_for": ["技术", "后端", "DevOps", "基础设施", "通用社招"],
+    "visual_strength": "medium",
+    "ats_level": "high",
+    "cjk": true,
+    "privacy_note": "公开分享时优先隐藏手机号，保留 email 和作品链接。"
+  },
+  "minimal": {
+    "display_name": "Minimal",
+    "description": "衬线字体、细横线、留白更多，气质克制。",
+    "recommended_for": ["学术", "研究", "管理", "资深", "非技术岗"],
+    "visual_strength": "low",
+    "ats_level": "high",
+    "cjk": true,
+    "privacy_note": "联系方式在同一行，公开版注意删掉不必要的私人信息。"
+  },
+  "modern": {
+    "display_name": "Modern",
+    "description": "彩色页眉和左竖条强调，更醒目。",
+    "recommended_for": ["产品", "设计", "市场", "增长", "作品集导向"],
+    "visual_strength": "high",
+    "ats_level": "medium",
+    "cjk": true,
+    "privacy_note": "页眉视觉强，适合投递版；保守 ATS 场景可优先 classic。"
+  }
+}
