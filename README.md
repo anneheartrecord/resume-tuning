@@ -6,11 +6,13 @@
 ![Language](https://img.shields.io/badge/language-Markdown-lightgrey.svg)
 ![Skill](https://img.shields.io/badge/type-Skill-orange.svg)
 
-| classic | modern | minimal |
+| Backend · classic | Product · modern | Research · minimal |
 |---|---|---|
-| ![Sam Altman](./assets/demos/altman-classic.png) | ![Jony Ive](./assets/demos/ive-modern.png) | ![Andrew Ng](./assets/demos/ng-minimal.png) |
+| ![Backend platform engineer resume demo](./assets/demos/backend-classic.png) | ![AI product manager resume demo](./assets/demos/product-modern.png) | ![Applied ML research resume demo](./assets/demos/research-minimal.png) |
+| Growth · modern | Operations · classic | New grad · minimal |
+| ![增长营销负责人简历样张](./assets/demos/growth-modern.png) | ![运营策略经理简历样张](./assets/demos/operations-classic.png) | ![New grad data analyst resume demo](./assets/demos/newgrad-minimal.png) |
 
-> 公开人物公开资料编的示意样张（非本人真迹），各套一种版式。排版参考 [tw93/Kami](https://github.com/tw93/Kami)。
+> 合成候选人示意样张，非真实简历；覆盖技术、产品、研究、增长、运营、学生 6 类场景。排版参考 [tw93/Kami](https://github.com/tw93/Kami)，样张可用 `python3 scripts/generate_demo_resumes.py` 重新生成。
 
 resume-tuning 是一个交互式简历生成 skill。给它一份旧简历，或者只口述几段经历，跟你来回几轮，交付一份**链接能点、刚好一页的 PDF**——classic / minimal / modern 三种版式随便切，不挑岗位。
 

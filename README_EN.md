@@ -6,11 +6,13 @@
 ![Language](https://img.shields.io/badge/language-Markdown-lightgrey.svg)
 ![Skill](https://img.shields.io/badge/type-Skill-orange.svg)
 
-| classic | modern | minimal |
+| Backend · classic | Product · modern | Research · minimal |
 |---|---|---|
-| ![Sam Altman](./assets/demos/altman-classic.png) | ![Jony Ive](./assets/demos/ive-modern.png) | ![Andrew Ng](./assets/demos/ng-minimal.png) |
+| ![Backend platform engineer resume demo](./assets/demos/backend-classic.png) | ![AI product manager resume demo](./assets/demos/product-modern.png) | ![Applied ML research resume demo](./assets/demos/research-minimal.png) |
+| Growth · modern | Operations · classic | New grad · minimal |
+| ![Growth marketing resume demo](./assets/demos/growth-modern.png) | ![Operations strategy resume demo](./assets/demos/operations-classic.png) | ![New grad data analyst resume demo](./assets/demos/newgrad-minimal.png) |
 
-> Illustrative samples built from public figures' public bios (not their real resumes), one layout each. Typography inspired by [tw93/Kami](https://github.com/tw93/Kami).
+> Synthetic demo resumes, not real candidates. The six samples cover backend, product, research, growth, operations, and new-grad scenarios. Typography inspired by [tw93/Kami](https://github.com/tw93/Kami). Regenerate them with `python3 scripts/generate_demo_resumes.py`.
 
 resume-tuning is an interactive resume-building skill. Give it an old resume, or just talk through a few experiences — it goes a few rounds with you and delivers a **one-page PDF with clickable links**. Three layouts (classic / minimal / modern), any role.
 
