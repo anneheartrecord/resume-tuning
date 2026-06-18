@@ -14,6 +14,7 @@ import os
 import re
 import subprocess
 import sys
+import json
 
 
 def _ensure_native_libs_then_reexec() -> None:
@@ -247,6 +248,40 @@ def _print_result(name: str, r: dict) -> None:
         print(f"  NOTE: 已放大到上限 {_MAX_MAGNIFY}× 仍未填满 —— 内容偏少，建议补经历，别靠放大撑页。")
 
 
+def _load_template_metadata() -> dict:
+    """读取模板 metadata，缺失时返回空 dict（preview 仍可用）。"""
+    skill_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    metadata_path = os.path.join(skill_dir, "assets", "templates", "templates.json")
+    if not os.path.exists(metadata_path):
+        return {}
+    with open(metadata_path, encoding="utf-8") as metadata_file:
+        return json.load(metadata_file)
+
+
+def _template_key_from_html(html_path: str) -> str:
+    """从 HTML 文件名推断模板 key。"""
+    stem = os.path.splitext(os.path.basename(html_path))[0].lower()
+    for key in ("classic", "minimal", "modern"):
+        if key in stem:
+            return key
+    return stem
+
+
+def _print_template_metadata(html_path: str, metadata: dict) -> None:
+    """在 preview 输出中打印模板选择依据。"""
+    key = _template_key_from_html(html_path)
+    item = metadata.get(key)
+    if not item:
+        return
+    recommended = " / ".join(item.get("recommended_for", []))
+    print(f"  template: {item.get('display_name', key)}")
+    print(f"  fit: {item.get('description', '')}")
+    print(f"  recommended_for: {recommended or '—'}")
+    print(f"  ats_level: {item.get('ats_level', '—')}  visual_strength: {item.get('visual_strength', '—')}")
+    if item.get("privacy_note"):
+        print(f"  privacy_note: {item['privacy_note']}")
+
+
 def render_one_page(html_path: str, out_path: str) -> int:
     """渲染 HTML 到一页 PDF，自动缩放 + 占位符泄漏检查。"""
     result = _render_autofit(html_path, out_path)
@@ -275,11 +310,13 @@ def preview(html_paths: list[str]) -> int:
     把三个 HTML 路径传进来，一次出三张图，让 agent/用户直接对比挑版式。
     """
     any_issue = False
+    metadata = _load_template_metadata()
     for html_path in html_paths:
         stem = os.path.splitext(html_path)[0]
         pdf_path = stem + ".pdf"
         result = _render_autofit(html_path, pdf_path)
         _print_result(os.path.basename(html_path), result)
+        _print_template_metadata(html_path, metadata)
         png = _rasterize(pdf_path)
         print(f"  pdf: {pdf_path}")
         print(f"  png: {png or '(非 macOS，跳过转图)'}")

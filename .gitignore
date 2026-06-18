@@ -8,6 +8,10 @@
 .idea/
 .vscode/
 
+# Python 运行产物
+__pycache__/
+*.pyc
+
 # 字体二进制不入库（含商业字体许可风险）
 assets/fonts/*.ttf
 assets/fonts/*.otf
