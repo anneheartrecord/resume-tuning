@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""resume-tuning 的 PDF 工具：提取来源简历、渲染并自动压到一页。
+"""resume-tuning 的 PDF 工具：提取来源简历、渲染并优先适配一页。
 
 子命令：
   extract <in.pdf>             提取文本 + 已嵌超链接，并判断是否图片/扫描型（需走视觉 OCR）。
-  render  <in.html> <out.pdf>  渲染成一页 PDF：自动缩放填满/压进一页 + 占位符泄漏检查。
-  preview <h1.html> [h2 ...]   渲染多个版式 HTML，各出一页 PDF + PNG（macOS），供对比选版式。
+  render  <in.html> <out.pdf>  渲染 PDF：自动缩放，优先一页；允许合理多页 + 占位符泄漏检查。
+  preview <h1.html> [h2 ...]   渲染多个版式 HTML，各出 PDF + PNG（macOS），供对比选版式。
 
-设计目标：把「渲染到刚好一页」「核对链接」「识别扫描件」「出图选版式」这些机械活
+设计目标：把「页数适配」「核对链接」「识别扫描件」「出图选版式」这些机械活
 做成确定性流程，而不是每次让模型手工试。依赖 weasyprint + pypdf。
 """
 
@@ -89,7 +89,7 @@ def extract_source(pdf_path: str) -> int:
 def _scale_style_block(html: str, factor: float) -> str:
     """把 <style> 里所有 pt / mm 尺寸整体乘以 factor，实现等比缩放。
 
-    factor>1 放大（内容少时撑满一页），factor<1 缩小（内容多时压进一页）。
+    factor>1 放大（内容少时撑满一页），factor<1 缩小（内容多时优先压进一页）。
     只动 <style> 块内的尺寸，不碰正文；字号、边距、间距、边框、圆角一起等比变，
     视觉比例不变，只是整体大小变。
     """
@@ -184,10 +184,10 @@ def _prepare_html(html_path: str) -> "tuple[str, bool]":
 
 
 def _render_autofit(html_path: str, out_path: str) -> dict:
-    """渲染并自动缩放到刚好一页，返回结构化结果 dict。
+    """渲染并自动缩放，优先适配一页，返回结构化结果 dict。
 
     内容不足一页 → 等比放大填页（上限 _MAX_MAGNIFY）。
-    内容超过一页 → 等比缩小进页（下限 _MIN_SHRINK）。
+    内容超过一页 → 等比缩小优先尝试进页（下限 _MIN_SHRINK）；仍多页则保留多页结果。
     """
     from weasyprint import HTML
 
@@ -217,8 +217,8 @@ def _render_autofit(html_path: str, out_path: str) -> dict:
         factor = 1.0
         while round(factor - 0.05, 2) >= _MIN_SHRINK:
             factor = round(factor - 0.05, 2)
+            best_factor = factor
             if render_at(factor) == 1:
-                best_factor = factor
                 break
 
     pages, links = (lambda f: (render_at(f), pdf_pages_and_links(out_path)[1]))(best_factor)
@@ -243,7 +243,7 @@ def _print_result(name: str, r: dict) -> None:
     if not r["cjk_font_used"]:
         print("  NOTE: 未找到 CJK 字体，中文将无法正确渲染。跑 scripts/ensure-fonts.sh 或设 RESUME_CJK_REGULAR。")
     if r["pages"] > 1:
-        print("  WARNING: 缩到下限仍超过一页 —— 内容太多，删减经历/要点再渲染。")
+        print("  NOTE: 超过一页；一页是推荐，不阻塞导出。若目标场景需要短简历，再删减弱项。")
     if r["hit_magnify_cap"]:
         print(f"  NOTE: 已放大到上限 {_MAX_MAGNIFY}× 仍未填满 —— 内容偏少，建议补经历，别靠放大撑页。")
 
@@ -283,11 +283,14 @@ def _print_template_metadata(html_path: str, metadata: dict) -> None:
 
 
 def render_one_page(html_path: str, out_path: str) -> int:
-    """渲染 HTML 到一页 PDF，自动缩放 + 占位符泄漏检查。"""
+    """渲染 HTML 到 PDF，优先一页，允许合理多页；占位符泄漏才失败。
+
+    函数名保留为兼容旧调用路径。
+    """
     result = _render_autofit(html_path, out_path)
     _print_result(os.path.basename(out_path), result)
-    # 超过一页或占位符泄漏 → 非零退出，提醒这不是合格成品。
-    return 1 if (result["pages"] > 1 or result["placeholder_leak"]) else 0
+    # 多页只是页数决策；占位符泄漏才说明半成品不能交付。
+    return 1 if result["placeholder_leak"] else 0
 
 
 def _rasterize(pdf_path: str) -> "str | None":
@@ -304,7 +307,7 @@ def _rasterize(pdf_path: str) -> "str | None":
 
 
 def preview(html_paths: list[str]) -> int:
-    """渲染多个填好的版式 HTML，各出一页 PDF + PNG，供对比选版式。
+    """渲染多个填好的版式 HTML，各出 PDF + PNG，供对比选版式。
 
     用法：把同一份内容分别填进 classic/minimal/modern 三个模板，
     把三个 HTML 路径传进来，一次出三张图，让 agent/用户直接对比挑版式。
@@ -320,7 +323,7 @@ def preview(html_paths: list[str]) -> int:
         png = _rasterize(pdf_path)
         print(f"  pdf: {pdf_path}")
         print(f"  png: {png or '(非 macOS，跳过转图)'}")
-        if result["pages"] > 1 or result["placeholder_leak"]:
+        if result["placeholder_leak"]:
             any_issue = True
     return 1 if any_issue else 0
 

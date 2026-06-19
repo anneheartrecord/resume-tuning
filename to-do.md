@@ -7,7 +7,7 @@ This document turns `resume-tuning` from a local agent skill into a commercial p
 ## Positioning
 
 - [ ] Define the primary wedge in one sentence.
-  - Draft: "Privacy-first resume workflow that turns real experience into honest, ATS-readable one-page PDFs."
+  - Draft: "Privacy-first resume workflow that turns real experience into honest, ATS-readable, page-count-aware PDFs."
   - Avoid claims like "guaranteed interview" or "beats ATS" because they create trust and compliance risk.
 - [ ] Pick the first commercial audience.
   - Recommended first audience: Chinese / bilingual job seekers applying to global roles who need JD-specific English or bilingual resumes.
@@ -23,7 +23,7 @@ This document turns `resume-tuning` from a local agent skill into a commercial p
   - Never fabricate experience, skills, titles, numbers, education, company names, or certifications.
   - Separate "covered", "real but buried", and "missing" JD requirements.
   - Treat ATS coverage as a signal, not a license to stuff keywords.
-  - Keep the final deliverable one page unless the user explicitly selects an academic CV mode.
+  - Recommend one page by default, while supporting justified multi-page resumes for senior, academic, portfolio-heavy, or user-requested cases.
 
 ## Market validation
 
@@ -242,17 +242,18 @@ This document turns `resume-tuning` from a local agent skill into a commercial p
   - "resume tailored to job description".
   - "Chinese to English resume".
   - "one-page resume builder".
+  - "multi-page CV builder".
   - "product manager resume examples".
   - "new grad resume examples".
 - [ ] Create example libraries.
   - Before/after rewrite examples.
-  - Role-specific one-page templates.
+  - Role-specific one-page-first templates with page-count guidance.
   - JD matching examples with honest missing-skill output.
   - Chinese to English localization examples.
 - [ ] Build lead magnets.
   - Free ATS readability check.
   - Free JD keyword gap report.
-  - Free one-page fit check.
+  - Free page-count fit check.
   - Free resume typo/consistency check.
 - [ ] Add sharing loops.
   - Exported PDF should not contain public watermark for paid users.
@@ -276,7 +277,7 @@ This document turns `resume-tuning` from a local agent skill into a commercial p
 - [ ] Define support workflows.
   - Upload failed.
   - PDF render failed.
-  - Resume exceeded one page.
+  - User needs help deciding whether to keep a multi-page resume.
   - User disagrees with JD missing-skill classification.
   - User wants to delete all data.
   - User asks for fabricated claims.

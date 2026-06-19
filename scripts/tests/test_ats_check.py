@@ -202,7 +202,6 @@ def test_hard_failures(failures: "list[str]") -> None:
 
     cases = {
         "text_extractable": dict(text_extractable=False),
-        "pages>1": dict(pages=2),
         "placeholder_leak": dict(placeholder_leak=["{{NAME}}"]),
         "sections<2": dict(sections={"experience": True, "education": False, "skills": False}),
         "no_email": dict(contact={"email": [], "phone": ["123"]}),
@@ -216,6 +215,9 @@ def test_hard_failures(failures: "list[str]") -> None:
     _check(failures, ats_check._hard_failures(
         _make_readability(sections={"experience": True, "education": True, "skills": False})) == [],
         "认出 2/3 章节不该算硬伤")
+    # 多页是页数决策，不是 ATS 硬伤；脚本只提示，不改变退出码。
+    _check(failures, ats_check._hard_failures(_make_readability(pages=2)) == [],
+           "超过 1 页不该计入 ATS 硬伤")
     # reading_order_ok=None（没给 name 无法判定）→ 不计入硬伤
     _check(failures, ats_check._hard_failures(_make_readability(reading_order_ok=None)) == [],
            "reading_order_ok=None 不该计入硬伤")
@@ -236,6 +238,11 @@ def test_run_and_cli(failures: "list[str]") -> None:
         # 有缺失但不设 min_coverage → 覆盖率仅参考，仍退出 0
         _check(failures, ats_check.run("x.pdf", keywords=["Go", "Rust"]) == 0,
                "run：不设 min_coverage 时覆盖率不门槛，该返回 0")
+        # 多页只提示，不让 ATS 自检失败
+        ats_check.check_readability = lambda pdf_path, name=None: _make_readability(
+            pages=2, text="Go Redis Kafka backend")
+        _check(failures, ats_check.run("x.pdf", keywords=["Go", "Redis"]) == 0,
+               "run：多页但其它可读性通过时该返回 0")
     finally:
         ats_check.check_readability = original
 
