@@ -30,7 +30,7 @@
    - Summary 第一条先对齐目标岗位最强证据。
    - Skills 内部排序把 JD required 且真实具备的词放前面。
    - Experience / Projects 的首 bullet 优先写 JD 最关心的职责。
-   - 删除与本 JD 无关、挤占一页空间的弱 bullet。
+   - 删除与本 JD 无关、挤占重点篇幅的弱 bullet。
 
 5. **保持真实性。**
    - 参与不能写成主导。
@@ -46,4 +46,3 @@
 - 哪些 required 仍是 🔴 真实缺口。
 - 哪些 bullet 被前置、改写或删除。
 - ATS 检查的覆盖率只是事实信号，不代表可以伪造能力。
-

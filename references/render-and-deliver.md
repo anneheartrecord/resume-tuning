@@ -30,7 +30,7 @@
 
 3. **用户选版式后精修。**
    - 保持内容一致，只根据版式空间删减弱项或调整 section 顺序。
-   - 若超过一页，先删弱经历和弱 bullet，再考虑 dense class；不要无限缩字号。
+   - 默认优先一页；若超过一页，先确认是否有必要完整保留。需要压缩时先删弱经历和弱 bullet，再考虑 dense class；不要无限缩字号。
 
 4. **渲染定稿。**
    - 运行 `python3 scripts/resume_pdf.py render <final.html> <final.pdf>`。
@@ -39,7 +39,7 @@
 
 5. **ATS 自检。**
    - 有 JD：`python3 scripts/ats_check.py <final.pdf> --name "<姓名>" --keywords "..."`
-   - 无 JD：也至少检查文本层、章节、email、一页、阅读顺序。
+   - 无 JD：也至少检查文本层、章节、email、页数取舍、阅读顺序。
    - hard failure 必须修复后再交付。
 
 6. **交付。**
@@ -49,10 +49,9 @@
 
 ## Final Checklist
 
-- PDF 是 1 页。
+- 页数已确认：默认推荐 1 页；超过 1 页时说明原因和取舍。
 - 没有 `{{...}}`、`[DATA NEEDED]`、`__CJK_*__` 泄漏。
 - email 和关键链接可点。
 - ATS 至少识别出 2 个标准 section。
 - 中文 glyph 已用 PNG 肉眼看过。
 - 简短交付说明包含版式、改动、待补数据和 JD 缺口。
-

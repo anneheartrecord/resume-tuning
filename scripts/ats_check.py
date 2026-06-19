@@ -3,7 +3,7 @@
 
 定稿 PDF 渲染后、交付前跑一遍，回答两个问题：
   1. 这份简历过得了 ATS（机器解析）吗？—— 文本层可提取、标准章节可识别、
-     联系方式可解析、阅读顺序正常、一页、无占位符泄漏。
+     联系方式可解析、阅读顺序正常、无占位符泄漏；页数只做推荐提示。
   2. 它贴目标岗位吗？—— 关键词覆盖率 M/N + 命中/缺失清单。
 
 用法：
@@ -262,8 +262,6 @@ def _hard_failures(readability: dict) -> "list[str]":
     failures: "list[str]" = []
     if not readability["text_extractable"]:
         failures.append("文本层提不出内容（图片/扫描型 PDF），ATS 读出来是空")
-    if readability["pages"] > 1:
-        failures.append(f"超过一页（{readability['pages']} 页），先压到一页")
     if readability["placeholder_leak"]:
         failures.append(f"占位符泄漏（半成品）：{readability['placeholder_leak']}")
     detected = [name for name, ok in readability["sections"].items() if ok]
@@ -288,6 +286,8 @@ def _print_readability(readability: dict) -> None:
     print(f"  phone(参考,可能误报): {contact['phone'] or '—'}")
     order = readability["reading_order_ok"]
     print(f"  reading_order: {'✓' if order else ('✗' if order is False else '— (未给 --name，跳过)')}")
+    if readability["pages"] > 1:
+        print("  NOTE: 多页不是 ATS 硬伤；一页仍是默认推荐，需按目标场景确认页数取舍。")
     if readability["placeholder_leak"]:
         print(f"  WARNING 占位符泄漏: {readability['placeholder_leak']}")
 

@@ -14,7 +14,9 @@
 
 > Synthetic demo resumes, not real candidates. The six samples cover backend, product, research, growth, operations, and new-grad scenarios. Typography inspired by [tw93/Kami](https://github.com/tw93/Kami). Regenerate them with `python3 scripts/generate_demo_resumes.py`.
 
-resume-tuning is an interactive resume-building skill. Give it an old resume, or just talk through a few experiences — it goes a few rounds with you and delivers a **one-page PDF with clickable links**. Three layouts (classic / minimal / modern), any role.
+resume-tuning is an interactive resume-building skill. Give it an old resume, or just talk through a few experiences — it goes a few rounds with you and delivers a **clickable PDF that is one-page-first but can span multiple pages when justified**. Three layouts (classic / minimal / modern), any role.
+
+The default recommendation is one page because most screening contexts reward fast scanning. Senior profiles, academic CVs, portfolio-heavy roles, or user-requested full versions can exceed one page, with the page-count tradeoff called out clearly.
 
 It runs the content against good-resume standards: quantify what matters, cut the fluff, strongest point first, fix typos. Missing data is never invented — it's flagged for you to fill.
 

@@ -2,10 +2,11 @@
 """resume-tuning 渲染回归测试。
 
 覆盖这个 skill 开发时踩过的真实回归：
-  1. 三套模板各能渲染、且为 1 页。
+  1. 三套模板各能渲染；短简历仍优先适配为 1 页。
   2. 中文内容渲染后 PDF 里真有 CJK 字体（防「字形丢失、文字层却正确」的乱码回归）。
   3. 占位符泄漏检查能正确报警（防半成品当成品交付）。
-  4. resume_pdf.py 能 import（防 Python 注解之类语法回归）。
+  4. 多页简历允许导出，不因页数返回失败。
+  5. resume_pdf.py 能 import（防 Python 注解之类语法回归）。
 
 跑法：python3 scripts/tests/test_render.py
 依赖 weasyprint + pypdf；需要 assets/fonts/ 有 CJK 字体（先跑 ensure-fonts.sh）。
@@ -15,6 +16,8 @@ import os
 import sys
 import tempfile
 import json
+import contextlib
+import io
 
 # 让本测试能 import 同级 scripts/ 下的 resume_pdf
 SCRIPTS_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -107,7 +110,7 @@ def run() -> int:
                 failures.append(f"templates.json {key} 缺少 {required}")
 
     if not skipped:
-        # 回归 1 + 2：三套模板渲染、1 页、中文字形在
+        # 回归 1 + 2：三套模板可渲染；短简历仍优先适配为 1 页，中文字形在
         for tpl in ("classic.html", "minimal.html", "modern.html"):
             html = _fill_template(tpl, _CN_BODY)
             html_path = os.path.join(tmp, tpl)
@@ -134,6 +137,31 @@ def run() -> int:
             failures.append("占位符泄漏检查失灵：留了 {{LEAK}} 和 [DATA NEEDED] 却没报")
         else:
             print(f"  leak check: 正确报警 {len(leak_result['placeholder_leak'])} 类")
+
+        # 回归 4：内容合理超过一页时只提示页数，不让导出/预览失败。
+        long_items = "\n".join(
+            f'<li class="b"><span class="lead">项目 {index}:</span> '
+            f'负责跨团队交付、流程改造和指标复盘，沉淀可复用方法并推动持续改进。</li>'
+            for index in range(1, 90)
+        )
+        long_body = _CN_BODY + (
+            '<div class="sec"><span class="tag">更多经历</span><span class="line"></span></div>'
+            f"<ul>{long_items}</ul>"
+        )
+        long_html = os.path.join(tmp, "long_classic.html")
+        long_pdf = long_html.replace(".html", ".pdf")
+        open(long_html, "w", encoding="utf-8").write(_fill_template("classic.html", long_body))
+        long_result = resume_pdf._render_autofit(long_html, long_pdf)
+        if long_result["pages"] <= 1:
+            failures.append(f"多页回归样例应超过 1 页，实际 {long_result['pages']} 页")
+        with contextlib.redirect_stdout(io.StringIO()):
+            exit_code = resume_pdf.render_one_page(long_html, long_pdf)
+            preview_code = resume_pdf.preview([long_html])
+        if exit_code != 0:
+            failures.append(f"多页且无占位符时 render 不应失败，实际退出码 {exit_code}")
+        if preview_code != 0:
+            failures.append(f"多页且无占位符时 preview 不应失败，实际退出码 {preview_code}")
+        print(f"  multipage allowed: pages={long_result['pages']} exit={exit_code} preview={preview_code}")
 
         if not cjk_available:
             print("  NOTE: 未装 CJK 字体，跳过中文字形断言。先跑 scripts/ensure-fonts.sh")
